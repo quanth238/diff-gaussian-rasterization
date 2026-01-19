@@ -290,6 +290,7 @@ renderCUDA(
 	float* __restrict__ out_sum_wz,
 	float* __restrict__ out_sum_wz2,
 	float* __restrict__ out_hit_depth,
+	float* __restrict__ out_max_w,
 	int* __restrict__ out_max_id,
 	float hit_quantile)
 {
@@ -324,7 +325,7 @@ renderCUDA(
 	float C[CHANNELS] = { 0 };
 
 	float expected_invdepth = 0.0f;
-	const bool write_stats = (out_sum_w || out_sum_wz || out_sum_wz2 || out_hit_depth || out_max_id);
+	const bool write_stats = (out_sum_w || out_sum_wz || out_sum_wz2 || out_hit_depth || out_max_w || out_max_id);
 	float sum_w = 0.0f;
 	float sum_wz = 0.0f;
 	float sum_wz2 = 0.0f;
@@ -392,7 +393,7 @@ renderCUDA(
 				sum_w += w;
 				sum_wz += w * z;
 				sum_wz2 += w * z * z;
-				if (out_max_id && w > max_w)
+				if ((out_max_id || out_max_w) && w > max_w)
 				{
 					max_w = w;
 					max_id = collected_id[j];
@@ -427,6 +428,8 @@ renderCUDA(
 				out_sum_wz[pix_id] = sum_wz;
 			if (out_sum_wz2)
 				out_sum_wz2[pix_id] = sum_wz2;
+			if (out_max_w)
+				out_max_w[pix_id] = max_w;
 			if (out_max_id)
 				out_max_id[pix_id] = max_id;
 		}
@@ -514,6 +517,7 @@ void FORWARD::render(
 	float* out_sum_wz,
 	float* out_sum_wz2,
 	float* out_hit_depth,
+	float* out_max_w,
 	int* out_max_id,
 	float hit_quantile)
 {
@@ -534,6 +538,7 @@ void FORWARD::render(
 		out_sum_wz,
 		out_sum_wz2,
 		out_hit_depth,
+		out_max_w,
 		out_max_id,
 		hit_quantile);
 }

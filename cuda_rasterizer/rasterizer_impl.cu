@@ -221,6 +221,7 @@ int CudaRasterizer::Rasterizer::forward(
 	float* out_sum_wz,
 	float* out_sum_wz2,
 	float* out_hit_depth,
+	float* out_max_w,
 	int* out_max_id,
 	float hit_quantile,
 	bool antialiasing,
@@ -346,6 +347,7 @@ int CudaRasterizer::Rasterizer::forward(
 		out_sum_wz,
 		out_sum_wz2,
 		out_hit_depth,
+		out_max_w,
 		out_max_id,
 		hit_quantile), debug)
 

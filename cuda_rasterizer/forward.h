@@ -67,6 +67,7 @@ namespace FORWARD
 		float* out_sum_wz,
 		float* out_sum_wz2,
 		float* out_hit_depth,
+		float* out_max_w,
 		int* out_max_id,
 		float hit_quantile);
 }

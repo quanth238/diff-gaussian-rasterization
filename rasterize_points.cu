@@ -32,7 +32,7 @@ std::function<char*(size_t N)> resizeFunctional(torch::Tensor& t) {
     return lambda;
 }
 
-std::tuple<int, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor>
+std::tuple<int, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor>
 RasterizeGaussiansCUDA(
 	const torch::Tensor& background,
 	const torch::Tensor& means3D,
@@ -79,11 +79,13 @@ RasterizeGaussiansCUDA(
   torch::Tensor out_sum_wz = torch::full({0}, 0.0, float_opts);
   torch::Tensor out_sum_wz2 = torch::full({0}, 0.0, float_opts);
   torch::Tensor out_hit_depth = torch::full({0}, 0.0, float_opts);
+  torch::Tensor out_max_w = torch::full({0}, 0.0, float_opts);
   torch::Tensor out_max_id = torch::full({0}, 0, int_opts);
   float* out_sum_wptr = nullptr;
   float* out_sum_wzptr = nullptr;
   float* out_sum_wz2ptr = nullptr;
   float* out_hit_depthptr = nullptr;
+  float* out_max_wptr = nullptr;
   int* out_max_idptr = nullptr;
   if (return_stats)
   {
@@ -91,11 +93,13 @@ RasterizeGaussiansCUDA(
     out_sum_wz = torch::full({1, H, W}, 0.0, float_opts).contiguous();
     out_sum_wz2 = torch::full({1, H, W}, 0.0, float_opts).contiguous();
     out_hit_depth = torch::full({1, H, W}, 0.0, float_opts).contiguous();
+    out_max_w = torch::full({1, H, W}, 0.0, float_opts).contiguous();
     out_max_id = torch::full({1, H, W}, -1, int_opts).contiguous();
     out_sum_wptr = out_sum_w.data<float>();
     out_sum_wzptr = out_sum_wz.data<float>();
     out_sum_wz2ptr = out_sum_wz2.data<float>();
     out_hit_depthptr = out_hit_depth.data<float>();
+    out_max_wptr = out_max_w.data<float>();
     out_max_idptr = out_max_id.data<int>();
   }
 
@@ -146,6 +150,7 @@ RasterizeGaussiansCUDA(
 		out_sum_wzptr,
 		out_sum_wz2ptr,
 		out_hit_depthptr,
+		out_max_wptr,
 		out_max_idptr,
 		hit_quantile,
 		antialiasing,
@@ -164,6 +169,7 @@ RasterizeGaussiansCUDA(
       out_sum_wz,
       out_sum_wz2,
       out_hit_depth,
+      out_max_w,
       out_max_id);
 }
 
